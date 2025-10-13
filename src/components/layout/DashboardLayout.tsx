@@ -22,6 +22,7 @@ import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
   Business as BusinessIcon,
+  FolderSpecial as SegmentIcon,
   AccountCircle,
   Logout,
 } from '@mui/icons-material';
@@ -56,6 +57,7 @@ const DashboardLayout: React.FC = () => {
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { text: 'Users', icon: <PeopleIcon />, path: '/users' },
     { text: 'Departments', icon: <BusinessIcon />, path: '/departments' },
+    { text: 'Segments', icon: <SegmentIcon />, path: '/segments' },
   ];
 
   const drawer = (
