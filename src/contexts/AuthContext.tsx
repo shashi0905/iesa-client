@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, LoginRequest, AuthenticationResponse } from '../types';
+import { User, LoginRequest, RegisterRequest, AuthenticationResponse } from '../types';
 import { authService } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  register: (data: RegisterRequest) => Promise<void>;
   login: (credentials: LoginRequest) => Promise<void>;
   logout: () => void;
   hasPermission: (permission: string) => boolean;
@@ -39,6 +40,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const register = async (data: RegisterRequest) => {
+    try {
+      const response: AuthenticationResponse = await authService.register(data);
+      setUser(response.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const login = async (credentials: LoginRequest) => {
     try {
       const response: AuthenticationResponse = await authService.login(credentials);
@@ -71,6 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     isAuthenticated: !!user,
     loading,
+    register,
     login,
     logout,
     hasPermission,

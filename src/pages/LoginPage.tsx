@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -10,6 +10,7 @@ import {
   Alert,
   Container,
   Avatar,
+  Link,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '../contexts/AuthContext';
@@ -121,6 +122,15 @@ const LoginPage: React.FC = () => {
               >
                 {loading ? 'Signing In...' : 'Sign In'}
               </Button>
+
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <Typography variant="body2">
+                  Don't have an account?{' '}
+                  <Link component={RouterLink} to="/register" variant="body2">
+                    Sign up
+                  </Link>
+                </Typography>
+              </Box>
 
               <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
                 <Typography variant="caption" display="block" gutterBottom>
