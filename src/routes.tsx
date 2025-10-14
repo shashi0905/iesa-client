@@ -6,6 +6,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import DepartmentsPage from './pages/DepartmentsPage';
+import SegmentsPage from './pages/SegmentsPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -47,6 +48,7 @@ const AppRoutes = () => {
         <Route index element={<DashboardPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
+        <Route path="segments" element={<SegmentsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
