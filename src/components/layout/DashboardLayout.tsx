@@ -25,6 +25,7 @@ import {
   FolderSpecial as SegmentIcon,
   Receipt as ExpenseIcon,
   AccountTree as WorkflowIcon,
+  AccountBalance as BudgetIcon,
   AccountCircle,
   Logout,
 } from '@mui/icons-material';
@@ -62,6 +63,7 @@ const DashboardLayout: React.FC = () => {
     { text: 'Segments', icon: <SegmentIcon />, path: '/segments' },
     { text: 'Expenses', icon: <ExpenseIcon />, path: '/expenses' },
     { text: 'Workflows', icon: <WorkflowIcon />, path: '/workflows' },
+    { text: 'Budgets', icon: <BudgetIcon />, path: '/budgets' },
   ];
 
   const drawer = (
