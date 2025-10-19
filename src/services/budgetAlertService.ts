@@ -1,4 +1,4 @@
-import api from './api';
+import { apiService as api } from './api';
 import { BudgetAlert } from '../types';
 
 export const budgetAlertService = {
