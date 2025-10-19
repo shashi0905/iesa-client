@@ -21,6 +21,12 @@ import {
   Typography,
   Alert,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -30,14 +36,19 @@ import {
   LockOpen as LockOpenIcon,
 } from '@mui/icons-material';
 import { userService } from '../services/userService';
-import { UserDto, CreateUserRequest, UpdateUserRequest } from '../types';
+import { departmentService } from '../services/departmentService';
+import { roleService } from '../services/roleService';
+import { UserDto, CreateUserRequest, UpdateUserRequest, Department, Role } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 const UsersPage: React.FC = () => {
   const { hasPermission } = useAuth();
   const [users, setUsers] = useState<UserDto[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dialogError, setDialogError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<UserDto | null>(null);
   const [formData, setFormData] = useState<Partial<CreateUserRequest>>({
@@ -47,7 +58,7 @@ const UsersPage: React.FC = () => {
     firstName: '',
     lastName: '',
     phoneNumber: '',
-    departmentId: '',
+    departmentId: undefined,
     roleIds: [],
   });
 
@@ -56,17 +67,23 @@ const UsersPage: React.FC = () => {
   const canDelete = hasPermission('USER_DELETE');
 
   useEffect(() => {
-    loadUsers();
+    loadData();
   }, []);
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await userService.getAllUsers();
-      setUsers(data);
+      const [usersData, departmentsData, rolesData] = await Promise.all([
+        userService.getAllUsers(),
+        departmentService.getAllDepartments(),
+        roleService.getAllRoles(),
+      ]);
+      setUsers(usersData);
+      setDepartments(departmentsData);
+      setRoles(rolesData);
       setError('');
     } catch (err: any) {
-      setError('Failed to load users');
+      setError('Failed to load data');
       console.error(err);
     } finally {
       setLoading(false);
@@ -74,6 +91,7 @@ const UsersPage: React.FC = () => {
   };
 
   const handleOpenDialog = (user?: UserDto) => {
+    setDialogError('');
     if (user) {
       setEditingUser(user);
       setFormData({
@@ -93,7 +111,7 @@ const UsersPage: React.FC = () => {
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        departmentId: '',
+        departmentId: undefined,
         roleIds: [],
       });
     }
@@ -103,6 +121,7 @@ const UsersPage: React.FC = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingUser(null);
+    setDialogError('');
     setFormData({
       username: '',
       email: '',
@@ -110,22 +129,23 @@ const UsersPage: React.FC = () => {
       firstName: '',
       lastName: '',
       phoneNumber: '',
-      departmentId: '',
+      departmentId: undefined,
       roleIds: [],
     });
   };
 
   const handleSubmit = async () => {
     try {
+      setDialogError('');
       if (editingUser) {
         await userService.updateUser(editingUser.id, formData as UpdateUserRequest);
       } else {
         await userService.createUser(formData as CreateUserRequest);
       }
       handleCloseDialog();
-      loadUsers();
+      loadData();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save user');
+      setDialogError(err.response?.data?.message || 'Failed to save user');
     }
   };
 
@@ -133,7 +153,7 @@ const UsersPage: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await userService.deleteUser(id);
-        loadUsers();
+        loadData();
       } catch (err: any) {
         setError('Failed to delete user');
       }
@@ -147,10 +167,15 @@ const UsersPage: React.FC = () => {
       } else {
         await userService.lockUser(user.id);
       }
-      loadUsers();
+      loadData();
     } catch (err: any) {
       setError('Failed to toggle lock status');
     }
+  };
+
+  const handleRoleChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value as string[];
+    setFormData({ ...formData, roleIds: value });
   };
 
   if (loading) {
@@ -267,6 +292,7 @@ const UsersPage: React.FC = () => {
         <DialogTitle>{editingUser ? 'Edit User' : 'Create User'}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {dialogError && <Alert severity="error">{dialogError}</Alert>}
             {!editingUser && (
               <TextField
                 label="Username"
@@ -314,6 +340,41 @@ const UsersPage: React.FC = () => {
               value={formData.phoneNumber}
               onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
             />
+            <FormControl fullWidth required>
+              <InputLabel>Department</InputLabel>
+              <Select
+                value={formData.departmentId || ''}
+                onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                label="Department"
+              >
+                {departments.map((dept) => (
+                  <MenuItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth required>
+              <InputLabel>Roles</InputLabel>
+              <Select
+                multiple
+                value={formData.roleIds || []}
+                onChange={handleRoleChange}
+                input={<OutlinedInput label="Roles" />}
+                renderValue={(selected) =>
+                  roles
+                    .filter((r) => selected.includes(r.id))
+                    .map((r) => r.name)
+                    .join(', ')
+                }
+              >
+                {roles.map((role) => (
+                  <MenuItem key={role.id} value={role.id}>
+                    {role.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
