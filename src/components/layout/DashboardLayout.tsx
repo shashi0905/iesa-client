@@ -26,6 +26,9 @@ import {
   Receipt as ExpenseIcon,
   AccountTree as WorkflowIcon,
   AccountBalance as BudgetIcon,
+  Assessment as ReportIcon,
+  DashboardCustomize as DashboardsIcon,
+  TrendingUp as AnalyticsIcon,
   AccountCircle,
   Logout,
 } from '@mui/icons-material';
@@ -64,6 +67,9 @@ const DashboardLayout: React.FC = () => {
     { text: 'Expenses', icon: <ExpenseIcon />, path: '/expenses' },
     { text: 'Workflows', icon: <WorkflowIcon />, path: '/workflows' },
     { text: 'Budgets', icon: <BudgetIcon />, path: '/budgets' },
+    { text: 'Reports', icon: <ReportIcon />, path: '/reports' },
+    { text: 'Dashboards', icon: <DashboardsIcon />, path: '/dashboards' },
+    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
   ];
 
   const drawer = (
